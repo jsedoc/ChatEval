@@ -5,6 +5,12 @@ Right now we are attempting to use Parl AI as our framework http://parl.ai/.
 
 All of our checkpoints will be made publicly available including all configurations.
 
+Submit your model! Please take a look https://goo.gl/forms/26Wu13jYBpxWoAgx1
+
+Amazon Mechanical Turk is not free... we are actively looking for funding.
+
+**WARNING: This is extremely alpha code!!!**
+
 ## ParlAI commands
 
 I setup this way .... 
