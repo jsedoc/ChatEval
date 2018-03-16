@@ -1,4 +1,4 @@
-# Chatbot_evaluation
+# SETC (A Standard Evaluation Tool for Chatbots)
 Chatbot evaluation is really hard. There is no standard, and this is our attempt to at least address small parts of this issue.
 
 Right now we are attempting to use Parl AI as our framework http://parl.ai/. 
