@@ -1,4 +1,4 @@
-## SETC: A Standard Evaluation Tool for Chatbots
+## [SETC: A Standard Evaluation Tool for Chatbots](https://jsedoc.github.io/SETC/)
 
 This tool is an attempt to bring some order to chaos. We employed the help of statisticians to design a tool to better compare models.  So you compare your model to another one. Each model comparison costs $1.20 ...
 
