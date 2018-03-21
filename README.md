@@ -9,7 +9,7 @@ Amazon Mechanical Turk is not free... we are actively looking for funding.
 
 Please find our paper [here](Chatbot_Evaluation_2018_COLING.pdf).
 
-What does SETC solve?
+**What does SETC solve?**
  1. Shared and publicly available model code and checkpoints.
  1. Standard evaluation datasets.
  1. Standard human annotator framework (currently using Amazon Mechanical Turk).
