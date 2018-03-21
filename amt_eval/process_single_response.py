@@ -1,4 +1,4 @@
-'''Processes the results from all of the HITs that have been run so far.'''
+'''Processes the result from a HIT for diagnostics.'''
 
 import xmltodict
 import argparse
