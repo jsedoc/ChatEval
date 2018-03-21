@@ -16,6 +16,6 @@ Having trouble email joao at upenn dot edu
 
 ### Backstory
 
-On Feb 2nd 2018, Joao was tired of trying to eva1uate his chat bot model. He could simply not replicate the neural conrersation model. Eventually he started looking for a standard tool for evaluation . But it didn't exist! Out of frustration SETC was born.
+On Feb 2nd 2018, Joao was tired of trying to evaluate his chat bot model. He could simply not replicate the neural conrersation model. Eventually he started looking for a standard tool for evaluation . But it didn't exist! Out of frustration SETC was born.
 
 So the next step was to evaluate super simple ideas. Do random seeds matter? (NO) What is the effect of data filtering? (Sometimes)  How do we decide to stop the training of the model? (Open question, but _not_ perplexity!)
