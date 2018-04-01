@@ -1,5 +1,7 @@
 import boto3
 import codecs
+import xmltodict
+import re
 
 class Example:
   '''Represents a single source line and all corresponding target lines
@@ -17,6 +19,12 @@ class Example:
     
     # This is used for 2-choice evaluation
     self.votes = []
+
+  def source_line_utterances(self):
+    '''The source line could actualy consist of multiple tab-separatted utterances.
+      Retrive these as a list.
+    '''
+    return self.source_line.split('\t')
 
   def add_target_line(self, target_line):
     self.target_lines.append(target_line)
@@ -90,5 +98,38 @@ def distinct_2(lines):
 
   return len(set(all_bigrams)) / float(num_words)
 
+def process_amt_hit_responses(worker_results_list, examples_dict, invert=False):
+  ''' Processes the worker_results_list and adds the vote information
+      to each Example in the examples_dict
+      If invert is True, set votes for first target to 1 and votes for 2nd target to 0
+  '''
 
+  for worker_results in worker_results_list:
+    if worker_results['NumResults'] > 0:
+      for assignment in worker_results['Assignments']:
+        xml_doc = xmltodict.parse(assignment['Answer'])
+        
+        # This code assumes there are multiple fields in HIT layout
+        for answer_field in xml_doc['QuestionFormAnswers']['Answer']:
+          if type(answer_field) == str:
+            continue
+          try:
+            input_field = answer_field['QuestionIdentifier']
+            rank = int(answer_field['FreeText'])
+          except Exception as e:
+            import pdb; pdb.set_trace()
+            print(e)
+
+          parsed = re.search(r'(ex-\d+)-target-(.+)', input_field)
+          example_key = parsed.group(1)
+          target_index_or_tie = parsed.group(2)
+          
+          example = examples_dict[example_key]
+          if 'tie' in target_index_or_tie:
+            example.votes.append(-1)
+          else:
+            target_index = int(target_index_or_tie)
+            if invert:
+              target_index = 0 if target_index == 1 else 0
+            example.votes.append(target_index)
 

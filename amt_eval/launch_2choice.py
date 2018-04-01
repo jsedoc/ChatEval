@@ -111,7 +111,6 @@ if __name__ == '__main__':
 
   examples = utils.process_source_and_responses(args.source_file, args.target_files)
   print('Read in %d examples, each with %d possible targets.' % (len(examples), len(examples[0].target_lines)))
-
   assert args.n_examples_per_hit <= len(examples)
 
   random.shuffle(examples)
@@ -121,7 +120,6 @@ if __name__ == '__main__':
   # k HITs that we want to show.
   count = 0
   hit_ids = []
-  #import pdb; pdb.set_trace()
 
   # NOTE: last check.
   if args.sandbox == False:
