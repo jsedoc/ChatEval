@@ -3,11 +3,11 @@ Chatbot evaluation is really hard. There is [no standard](http://www.seas.upenn.
 
 Right now we using [ParlAi](http://parl.ai/) as our framework for data as well as experiments. We use [OpenMNT-py](https://github.com/OpenNMT/OpenNMT-py) for training models. All of our checkpoints will be made publicly available including all configurations. See this [link](http://chatbot-eval-data.s3-accelerate.amazonaws.com/results/available_checkpoints.txt) for checkpoints from the paper. 
 
-Submit your model! Please take a look our submission [form](http://www.seas.upenn.edu/~joao/qc7.html).
+Submit your model! Please take a look our submission [form](https://form.jotform.com/80816491184158).
 
 Amazon Mechanical Turk is not free... we are actively looking for funding.
 
-Please find our paper [here](Chatbot_Evaluation_2018_COLING.pdf).
+Please find our paper [here](paper/Chatbot_Evaluation_Demo_2018_EMNLP.pdf).
 
 **What does ChatEval solve?**
  1. Shared and publicly available model code and checkpoints.
