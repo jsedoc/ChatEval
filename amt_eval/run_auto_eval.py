@@ -8,7 +8,7 @@ import pickle
 from gensim.models import KeyedVectors
 
 import utils
-import embedding_metrics
+import auto_eval_utils as aeu
 
 
 # NOTE: sample runs file
@@ -65,15 +65,15 @@ if __name__ == '__main__':
     for model in response_files[evalset].keys():
       auto_eval[evalset][model] = dict()
       target_lines = [_.strip('\n') for _ in open(response_files[evalset][model]).readlines()]
-      auto_eval[evalset][model]['Average Length'] = utils.avg_len(target_lines)
-      auto_eval[evalset][model]['distinct-1'] = utils.distinct_1(target_lines)
-      auto_eval[evalset][model]['distinct-2'] = utils.distinct_2(target_lines)
+      auto_eval[evalset][model]['Average Length'] = aeu.avg_len(target_lines)
+      auto_eval[evalset][model]['distinct-1'] = aeu.distinct_1(target_lines)
+      auto_eval[evalset][model]['distinct-2'] = aeu.distinct_2(target_lines)
       #auto_eval[evalset][model]['distinct-3'] = utils.distinct_3(target_lines)
       #auto_eval[evalset][model]['distinct-4'] = utils.distinct_4(target_lines)
       if evalset=='NCM':
         # NOTE: this will take both human references.
-        auto_eval[evalset][model]['Average Sentence BLEU-2'] = utils.bleu(target_lines, list(human_responses[evalset].values()))
-        auto_eval[evalset][model]['Embedding Average Score'] = embedding_metrics.average(human_responses[evalset]['Human2'], target_lines, w2v)
+        auto_eval[evalset][model]['Average Sentence BLEU-2'] = aeu.bleu(target_lines, list(human_responses[evalset].values()))
+        auto_eval[evalset][model]['Embedding Average Score'] = aeu.average_embedding_score(human_responses[evalset]['Human2'], target_lines, w2v)
         # NOTE: skipped.
         # embedding_metrics.greedy_match
         # embedding_metrics.extrema_score

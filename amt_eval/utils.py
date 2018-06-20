@@ -83,48 +83,6 @@ def read_keys_from_file(filename='accessKeys.csv'):
     aws_access_key, aws_secret_access_key = f.readline().strip().split(',')
   return aws_access_key, aws_secret_access_key
 
-def distinct_1(lines):
-  words = ' '.join(lines).split(' ')
-  num_distinct_words = len(set(words))
-  return float(num_distinct_words) / len(words)
-
-def distinct_2(lines):
-  all_bigrams = []
-  num_words = 0
-
-  for line in lines:
-    line_list = line.split(' ')
-    num_words += len(line_list)
-    bigrams = zip(line_list, line_list[1:])
-    all_bigrams.extend(list(bigrams))
-
-  return len(set(all_bigrams)) / float(num_words)
-
-def avg_len(lines):
-  return(len([w for s in lines for w in s.strip().split()])/len(lines))
-
-def bleu(target_lines, gt_lines, DEBUG=False):
-  from nltk.translate.bleu_score import sentence_bleu
-  avg_bleu = 0
-  num_refs = len(gt_lines)
-  for i in range(len(target_lines)):
-    ref = []
-    for r in range(num_refs):
-      ref.append(gt_lines[r][i].lower().split())
-    hyp = target_lines[i].lower().split()
-  
-    bleu = sentence_bleu(ref, hyp, weights = (0.5, 0.5))
-    if DEBUG == 2:
-      print('CAND: ',target_lines[i])
-      print('GT  : ',gt_lines[0][i])
-      print('BLEU:', bleu)
-
-    
-    avg_bleu += bleu
-  avg_bleu = avg_bleu / len(target_lines)
-  return((avg_bleu))
-
-
 def process_amt_hit_responses(worker_results_list, examples_dict, invert=False):
   ''' Processes the worker_results_list and adds the vote information
       to each Example in the examples_dict
