@@ -5,79 +5,82 @@ import os
 import argparse
 import codecs
 import pickle
-import scipy.stats
-import numpy as np
 from gensim.models import KeyedVectors
-from nltk.translate.bleu_score import sentence_bleu
 
 import utils
 import embedding_metrics
 
+
+# NOTE: sample runs file
+# NCM,Cakechat,/home/jsedoc/Chatbot_evaluation/eval_data/ncm/neural_conv_model_eval_responses_cakechat.txt
+# DBDC,OSQ,/data2/chatbot_eval_issues/results/AMT_DBDC_Test_OSC_OSQ/pred.txt.seed_701_no_emb_osq_acc_31.46_ppl_52.67_e13.pt
+
 parser = argparse.ArgumentParser(description='Perform automatic evaluation.')
-parser.add_argument('-t','--target_path',
-                    help='Output utterances, one per line',
+parser.add_argument('-r', '--runs_file',
+                    help='File which has evaldataset, model, path as CSV with no header\n\t e.g. NCM,Cakechat,/home/jsedoc/Chatbot_evaluation/eval_data/ncm/neural_conv_model_eval_responses_cakechat.txt',
                     required=True)
-parser.add_argument('-g', '--ground_truth_path',
-                    help='Groundtruth output  utterances, one per line',
-                    default=None)
-parser.add_argument('-s', '--source_path',
-                    required=True,
-                    help="Input itternces, one per line. This can be a .TSV if there are multiple inputs.")
-parser.add_argument('-e', '--embedding_path',
+parser.add_argument('-e', '--embedding_file',
                     help='Path to a word embedding file that can be processed by Gensim',
-                    required=True)
+                    default='/data1/embeddings/eng/GoogleNews-vectors-negative300.bin',
+                    required=False)
 args = parser.parse_args()
 
 
-def print_distinct(target_lines):
-
-  distinct_1 = utils.distinct_1(target_lines)
-  distinct_2 = utils.distinct_2(target_lines)
-  print('Model 1 has scores:')
-  print('distinct-1 = %f' % distinct_1)
-  print('distinct-2 = %f' % distinct_2)
-
-
-def print_bleu_scores(target_lines, gt_lines):
-  avg_bleu = 0
-  for (target_line, gt_line) in zip(target_lines, gt_lines):
-    bleu = sentence_bleu(gt_line, target_line)
-    avg_bleu += bleu
-  avg_bleu = avg_bleu / len(target_lines)
-  print('bleu = %d' % (avg_bleu))
-
-def print_embedding_scores(target_lines, gt_lines, w2v):
-  r = embedding_metrics.average(gt_lines, target_lines, w2v)
-  print("Embedding Average Score: %f +/- %f ( %f )" %(r[0], r[1], r[2]))
-
-  r = embedding_metrics.greedy_match(gt_lines, target_lines, w2v)
-  print("Greedy Matching Score: %f +/- %f ( %f )" %(r[0], r[1], r[2]))
-
-  r = embedding_metrics.extrema_score(gt_lines, target_lines, w2v)
-  print("Extrema Score: %f +/- %f ( %f )" %(r[0], r[1], r[2]))
-
 if __name__ == '__main__':
-  if args.ground_truth_path is not None:
-    with open(args.ground_truth_path, 'r') as f_gt:
-      gt_lines = list(line.strip() for line in f_gt)
-  else:
-    gt_lines = None
+  response_files = dict()
+  response_files['NCM'] = dict()
+  response_files['DBDC'] = dict()
+  auto_eval = dict()
+  auto_eval['NCM'] = dict()
+  auto_eval['DBDC'] = dict()
+  human_responses = dict()
+  human_responses['NCM'] = {}
+  human_responses['DBDC']={}
 
-  with open(args.source_path, 'r') as f_gt:
-    source_lines = list(line.strip() for line in f_gt)
+  for line in open(args.runs_file).readlines():
+    evalset,model,response_file = line.strip('\n').split(',')
+    # print(evalset,model,response_file)
 
-  with open(args.target_path, 'r') as f_gt:
-    target_lines = list(line.strip() for line in f_gt)
+    target_files = [response_file]
+    print('Evaluation set is ' + evalset + ' model is: ' + model + ' response file: ' + response_file)
+    response_files[evalset][model] = target_files[0]
 
-  w2v = KeyedVectors.load_word2vec_format(
-      args.embedding_path, binary=args.embedding_path.endswith(('bin')))
+    if evalset == 'NCM':
+      examples = utils.process_source_and_responses(
+        '/data2/chatbot_eval_issues/results/AMT_NCM_Test_NCM_Cakechat/neural_conv_model_eval_source.txt', target_files)
+      human_responses['NCM']['Human1'] = [_.strip('\n') for _ in open('/home/jsedoc/Chatbot_evaluation/eval_data/ncm/neural_conv_model_eval_responses_human_1.txt').readlines()]
+      human_responses['NCM']['Human2'] = [_.strip('\n') for _ in open('/home/jsedoc/Chatbot_evaluation/eval_data/ncm/neural_conv_model_eval_responses_human_2.txt').readlines()]
+    elif evalset == 'DBDC':
+      examples = utils.process_source_and_responses(
+        '/data2/chatbot_eval_issues/results/AMT_DBDC_Test_OSQ_Harvard/dbdc_eval_minus_CIC_200rand.txt', target_files)
+        
+    examples_dict = {}
+    for example in examples:
+      examples_dict[example.key] = example
 
-  # Make sure every file has the same number of lines.
-  assert(len(source_lines) == len(target_lines))
-  if gt_lines is not None:
-    assert(len(source_lines) == len(gt_lines))
+  binary_file = 'bin' in args.embedding_file
+  w2v = KeyedVectors.load_word2vec_format(args.embedding_file, binary=binary_file)
 
-  print_distinct(target_lines)
-  if source_lines is not None:
-    print_embedding_scores(target_lines, gt_lines, w2v)
-    print_bleu_scores(target_lines, gt_lines)
+  for evalset in response_files.keys():
+    for model in response_files[evalset].keys():
+      auto_eval[evalset][model] = dict()
+      target_lines = [_.strip('\n') for _ in open(response_files[evalset][model]).readlines()]
+      auto_eval[evalset][model]['Average Length'] = utils.avg_len(target_lines)
+      auto_eval[evalset][model]['distinct-1'] = utils.distinct_1(target_lines)
+      auto_eval[evalset][model]['distinct-2'] = utils.distinct_2(target_lines)
+      #auto_eval[evalset][model]['distinct-3'] = utils.distinct_3(target_lines)
+      #auto_eval[evalset][model]['distinct-4'] = utils.distinct_4(target_lines)
+      if evalset=='NCM':
+        # NOTE: this will take both human references.
+        auto_eval[evalset][model]['Average Sentence BLEU-2'] = utils.bleu(target_lines, list(human_responses[evalset].values()))
+        auto_eval[evalset][model]['Embedding Average Score'] = embedding_metrics.average(human_responses[evalset]['Human2'], target_lines, w2v)
+        # NOTE: skipped.
+        # embedding_metrics.greedy_match
+        # embedding_metrics.extrema_score
+
+
+        
+import json            
+print(json.dumps(auto_eval, sort_keys=True, indent=4, separators=(',', ': ')))
+
+

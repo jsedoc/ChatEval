@@ -16,6 +16,8 @@ class Example:
     # for each target_line, contains a list of the ranking that line was assigned
     # This is not used for 2-choice evaluation
     self.ranks = []
+
+    self.workers = []
     
     # This is used for 2-choice evaluation
     self.votes = []
@@ -31,7 +33,7 @@ class Example:
     self.ranks.append([])
 
   def __str__(self):
-    return "source='%s', targets='%s'" % (self.source_line, str(self.target_lines))
+    return "source='%s', targets='%s', votes='%s'" % (self.source_line, str(self.target_lines), str(self.votes))
 
 
 def process_source_and_responses(source_file, target_files):
@@ -98,6 +100,31 @@ def distinct_2(lines):
 
   return len(set(all_bigrams)) / float(num_words)
 
+def avg_len(lines):
+  return(len([w for s in lines for w in s.strip().split()])/len(lines))
+
+def bleu(target_lines, gt_lines, DEBUG=False):
+  from nltk.translate.bleu_score import sentence_bleu
+  avg_bleu = 0
+  num_refs = len(gt_lines)
+  for i in range(len(target_lines)):
+    ref = []
+    for r in range(num_refs):
+      ref.append(gt_lines[r][i].lower().split())
+    hyp = target_lines[i].lower().split()
+  
+    bleu = sentence_bleu(ref, hyp, weights = (0.5, 0.5))
+    if DEBUG == 2:
+      print('CAND: ',target_lines[i])
+      print('GT  : ',gt_lines[0][i])
+      print('BLEU:', bleu)
+
+    
+    avg_bleu += bleu
+  avg_bleu = avg_bleu / len(target_lines)
+  return((avg_bleu))
+
+
 def process_amt_hit_responses(worker_results_list, examples_dict, invert=False):
   ''' Processes the worker_results_list and adds the vote information
       to each Example in the examples_dict
@@ -116,6 +143,7 @@ def process_amt_hit_responses(worker_results_list, examples_dict, invert=False):
           try:
             input_field = answer_field['QuestionIdentifier']
             rank = int(answer_field['FreeText'])
+            worker_id = assignment['WorkerId']
           except Exception as e:
             import pdb; pdb.set_trace()
             print(e)
@@ -132,4 +160,4 @@ def process_amt_hit_responses(worker_results_list, examples_dict, invert=False):
             if invert:
               target_index = 0 if target_index == 1 else 0
             example.votes.append(target_index)
-
+          example.workers.append(worker_id)
