@@ -19,6 +19,8 @@ class Example:
 
     self.workers = []
     
+    self.hits = []
+    
     # This is used for 2-choice evaluation
     self.votes = []
 
@@ -102,6 +104,7 @@ def process_amt_hit_responses(worker_results_list, examples_dict, invert=False):
             input_field = answer_field['QuestionIdentifier']
             rank = int(answer_field['FreeText'])
             worker_id = assignment['WorkerId']
+            hit_id = assignment['HITId']
           except Exception as e:
             import pdb; pdb.set_trace()
             print(e)
@@ -119,3 +122,4 @@ def process_amt_hit_responses(worker_results_list, examples_dict, invert=False):
               target_index = 0 if target_index == 1 else 0
             example.votes.append(target_index)
           example.workers.append(worker_id)
+          example.hits.append(hit_id)
