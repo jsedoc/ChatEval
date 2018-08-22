@@ -22,7 +22,7 @@ parser.add_argument('-s', '--source_file',
                     required=True,
                     help="Source file, one source sentence per line.")
                     
-args = parser.parse_args()
+# args = parser.parse_args()
 
 def print_vote_counts(examples_dict):
   l = [ex.votes for ex in examples_dict.values()]
@@ -37,6 +37,7 @@ def print_annotator_agreement(examples_dict):
   total = 0
 
   for ex in examples_dict.values():
+    print(ex)
     votes = ex.votes
     if len(votes) < 2:
       continue
@@ -94,6 +95,7 @@ def print_num_annotators(examples_dict):
   print('%s votes in total.' % (total_votes))
 
 if __name__ == '__main__':
+  args = parser.parse_args()
   # Read the examples into a dictionary 
   with open(args.target_list, 'r') as fin:
     target_files = fin.readlines()

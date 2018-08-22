@@ -16,6 +16,10 @@ class Example:
     # for each target_line, contains a list of the ranking that line was assigned
     # This is not used for 2-choice evaluation
     self.ranks = []
+
+    self.workers = []
+    
+    self.hits = []
     
     # This is used for 2-choice evaluation
     self.votes = []
@@ -31,7 +35,7 @@ class Example:
     self.ranks.append([])
 
   def __str__(self):
-    return "source='%s', targets='%s'" % (self.source_line, str(self.target_lines))
+    return "source='%s', targets='%s', votes='%s'" % (self.source_line, str(self.target_lines), str(self.votes))
 
 
 def process_source_and_responses(source_file, target_files):
@@ -81,23 +85,6 @@ def read_keys_from_file(filename='accessKeys.csv'):
     aws_access_key, aws_secret_access_key = f.readline().strip().split(',')
   return aws_access_key, aws_secret_access_key
 
-def distinct_1(lines):
-  words = ' '.join(lines).split(' ')
-  num_distinct_words = len(set(words))
-  return float(num_distinct_words) / len(words)
-
-def distinct_2(lines):
-  all_bigrams = []
-  num_words = 0
-
-  for line in lines:
-    line_list = line.split(' ')
-    num_words += len(line_list)
-    bigrams = zip(line_list, line_list[1:])
-    all_bigrams.extend(list(bigrams))
-
-  return len(set(all_bigrams)) / float(num_words)
-
 def process_amt_hit_responses(worker_results_list, examples_dict, invert=False):
   ''' Processes the worker_results_list and adds the vote information
       to each Example in the examples_dict
@@ -116,6 +103,8 @@ def process_amt_hit_responses(worker_results_list, examples_dict, invert=False):
           try:
             input_field = answer_field['QuestionIdentifier']
             rank = int(answer_field['FreeText'])
+            worker_id = assignment['WorkerId']
+            hit_id = assignment['HITId']
           except Exception as e:
             import pdb; pdb.set_trace()
             print(e)
@@ -132,4 +121,5 @@ def process_amt_hit_responses(worker_results_list, examples_dict, invert=False):
             if invert:
               target_index = 0 if target_index == 1 else 0
             example.votes.append(target_index)
-
+          example.workers.append(worker_id)
+          example.hits.append(hit_id)

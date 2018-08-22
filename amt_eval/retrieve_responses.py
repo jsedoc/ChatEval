@@ -8,6 +8,9 @@ import pickle
 import os
 import utils
 
+if not 'DEBUG' in vars() and not 'DEBUG' in globals():
+  DEBUG = False
+
 parser = argparse.ArgumentParser(description='Processes the AMT HIT results for all of the provided HIT ids.')
 parser.add_argument('-d', '--hit_list_path',
                     help='Path to a .txt file with one HIT ID per line',
@@ -23,7 +26,8 @@ if __name__ == '__main__':
   worker_results_list = []
 
   print('Reading HIT ids from: ' + args.hit_list_path)
-  import pdb; pdb.set_trace()
+  if DEBUG:
+    import pdb; pdb.set_trace()
   with open(args.hit_list_path, 'r') as f_in:
     for hit_id in f_in:
       print('Processing: ' + hit_id)
