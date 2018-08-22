@@ -119,7 +119,7 @@ def process_amt_hit_responses(worker_results_list, examples_dict, invert=False):
           else:
             target_index = int(target_index_or_tie)
             if invert:
-              target_index = 0 if target_index == 1 else 0
+              target_index = 0 if target_index == 1 else 1
             example.votes.append(target_index)
           example.workers.append(worker_id)
           example.hits.append(hit_id)
